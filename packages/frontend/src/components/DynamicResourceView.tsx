@@ -37,6 +37,8 @@ interface DynamicResourceViewProps {
   cloud: CloudProvider;
   service: CloudServiceType;
   serviceAvailability?: CloudAvailability;
+  /** Server-supplied explanation, shown instead of generic coming-soon copy. */
+  serviceReason?: string;
   cloudStatus?: CloudStatus;
   statusLoading?: boolean;
   onOpenInfo: () => void;
@@ -46,6 +48,7 @@ export function DynamicResourceView({
   cloud,
   service,
   serviceAvailability = "coming_soon",
+  serviceReason,
   cloudStatus,
   statusLoading = false,
   onOpenInfo,
@@ -272,6 +275,7 @@ export function DynamicResourceView({
               cloudStatus,
               statusLoading,
               serviceAvailability,
+              serviceReason,
               resourcesLoading: resourcesQuery.isLoading,
               resourcesError: resourcesQuery.error,
               isRetrying: resourcesQuery.isFetching,
@@ -364,6 +368,8 @@ function resourceCreateLabel(schema: ServiceSchema): string {
   if (schema.cloud === "azure" && schema.service === "database")
     return "Create database";
   if (schema.service === "queue") return "Create queue";
+  if (schema.cloud === "azure" && schema.service === "secrets")
+    return "Create secret";
   return "Create resource";
 }
 
@@ -392,6 +398,7 @@ function renderResourceSurface({
   cloudStatus,
   statusLoading,
   serviceAvailability,
+  serviceReason,
   resourcesLoading,
   resourcesError,
   isRetrying,
@@ -406,6 +413,7 @@ function renderResourceSurface({
   cloudStatus?: CloudStatus;
   statusLoading: boolean;
   serviceAvailability: CloudAvailability;
+  serviceReason?: string;
   resourcesLoading: boolean;
   resourcesError: unknown;
   isRetrying: boolean;
@@ -416,8 +424,8 @@ function renderResourceSurface({
   if (statusLoading) {
     return (
       <RuntimeNotice
-        title="Checking runtime"
-        detail="Waiting for the proxy to confirm the selected cloud runtime."
+        title="Loading service"
+        detail="Waiting for the proxy to describe this service and confirm its runtime."
         state="pending"
       />
     );
@@ -426,7 +434,10 @@ function renderResourceSurface({
     return (
       <RuntimeNotice
         title="Adapter coming soon"
-        detail={`${schema.displayName} uses the same normalized schema, but a runtime adapter is not registered yet.`}
+        detail={
+          serviceReason ??
+          `${schema.displayName} uses the same normalized schema, but a runtime adapter is not registered yet.`
+        }
         state="pending"
       />
     );
