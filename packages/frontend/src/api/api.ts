@@ -13,6 +13,7 @@ export const apiEndpointKeys = {
     list: "clouds.list",
     services: "clouds.services.list",
     status: "clouds.status.get",
+    serviceStatus: "clouds.services.status.get",
     schema: "clouds.services.schema.get",
     resources: {
       list: "clouds.services.resources.list",
@@ -198,6 +199,14 @@ export const endpointRegistry: EndpointRegistry = new Map([
     apiEndpointKeys.clouds.status,
     {
       path: "/clouds/:cloud/status",
+      method: "GET",
+      telemetry: { service: "cloud-proxy" },
+    },
+  ],
+  [
+    apiEndpointKeys.clouds.serviceStatus,
+    {
+      path: "/clouds/:cloud/services/:service/status",
       method: "GET",
       telemetry: { service: "cloud-proxy" },
     },
